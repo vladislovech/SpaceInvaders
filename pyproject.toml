@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "Space Invaders"
+version = "0.0.1"
+description = "Space Invaders"
+authors = [
+    "Владислав",
+]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.13"
+mypy = "^1.15.0"
+flake8 = "^7.2.0"
+isort = "^6.0.1"
+pre-commit = "^4.2.0"
+pytest = "^8.3.5"
+pygame = "2.1.3"
+
+
+[tool.mypy]
+python_version = "3.10"
+
+enable_error_code = ["truthy-bool", "ignore-without-code"]
+check_untyped_defs = true
+strict_optional = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unreachable = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+ignore_missing_imports = true
+follow_imports = "normal"
+follow_imports_for_stubs = true
+
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+skip-string-normalization = true

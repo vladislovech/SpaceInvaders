@@ -1,9 +1,10 @@
 import pygame.font
 
+from alien_invasion import AlienInvasion
+
 
 class Button:
-
-    def __init__(self, ai_game, msg):
+    def __init__(self, ai_game: AlienInvasion, msg: str) -> None:
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
 
@@ -17,12 +18,11 @@ class Button:
 
         self._prep_msg(msg)
 
-    def _prep_msg(self, msg):
-        self.msg_image = self.font.render(msg, True, self.text_color,
-                                          self.button_color)
+    def _prep_msg(self, msg: str) -> None:
+        self.msg_image = self.font.render(msg, True, self.text_color, self.button_color)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
 
-    def draw_button(self):
+    def draw_button(self) -> None:
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)

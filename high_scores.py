@@ -1,11 +1,15 @@
-import sys
-import pygame.font
 import json
+import sys
 from pathlib import Path
+from typing import Any
+
+import pygame.font
+
+from alien_invasion import AlienInvasion
 
 
 class HighScores:
-    def __init__(self, ai_game):
+    def __init__(self, ai_game: AlienInvasion) -> None:
         self.ai_game = ai_game
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
@@ -19,7 +23,7 @@ class HighScores:
         self.scores_file = Path('high_scores.json')
         self.high_scores = self._load_high_scores()
 
-    def _load_high_scores(self):
+    def _load_high_scores(self) -> Any:
         try:
             if self.scores_file.exists():
                 with open(self.scores_file) as f:
@@ -29,23 +33,23 @@ class HighScores:
 
         return []
 
-    def _save_high_scores(self):
+    def _save_high_scores(self) -> None:
         with open(self.scores_file, 'w') as f:
             json.dump(self.high_scores, f, indent=4)
 
-    def check_new_high_score(self):
+    def check_new_high_score(self) -> Any:
         if len(self.high_scores) < 5:
             return True
         return self.stats.score > min(score['score'] for score in self.high_scores)
 
-    def add_high_score(self, name):
+    def add_high_score(self, name: str) -> None:
         new_entry = {"name": name, "score": self.stats.score}
         self.high_scores.append(new_entry)
         self.high_scores.sort(key=lambda x: x["score"], reverse=True)
         self.high_scores = self.high_scores[:5]
         self._save_high_scores()
 
-    def show_high_scores(self):
+    def show_high_scores(self) -> None:
         overlay = pygame.Surface((self.screen_rect.width, self.screen_rect.height), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
         self.screen.blit(overlay, (0, 0))
@@ -67,7 +71,7 @@ class HighScores:
         pygame.display.flip()
         self._wait_for_key()
 
-    def _wait_for_key(self):
+    def _wait_for_key(self) -> None:
         waiting = True
         while waiting:
             for event in pygame.event.get():

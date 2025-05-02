@@ -1,11 +1,13 @@
+import random
+
 import pygame
 from pygame.sprite import Sprite
-import random
+
+from alien_invasion import AlienInvasion
 
 
 class MysteryShip(Sprite):
-
-    def __init__(self, ai_game):
+    def __init__(self, ai_game: AlienInvasion) -> None:
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
@@ -29,7 +31,7 @@ class MysteryShip(Sprite):
         self.appear_time = 0
         self.delay = random.randint(10000, 30000)  # 10-30 seconds
 
-    def update(self):
+    def update(self) -> None:
         if not self.active:
             current_time = pygame.time.get_ticks()
             if current_time - self.appear_time > self.delay:
@@ -46,16 +48,17 @@ class MysteryShip(Sprite):
         self.x += self.speed * self.direction
         self.rect.x = self.x
 
-        if (self.direction == 1 and self.rect.left > self.screen_rect.right) or \
-                (self.direction == -1 and self.rect.right < 0):
+        if (self.direction == 1 and self.rect.left > self.screen_rect.right) or (
+            self.direction == -1 and self.rect.right < 0
+        ):
             self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.active = False
         self.appear_time = pygame.time.get_ticks()
         self.delay = random.randint(10000, 30000)
         self.points = random.randint(1, 10) * 100
 
-    def draw(self):
+    def draw(self) -> None:
         if self.active:
             self.screen.blit(self.image, self.rect)
