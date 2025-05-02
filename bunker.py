@@ -3,24 +3,51 @@ from pygame.sprite import Sprite
 
 
 class Bunker(Sprite):
-    """A class to represent a bunker that protects the ship."""
 
     def __init__(self, ai_game, x_pos):
-        """Initialize the bunker and set its starting position."""
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
-        self.color = (0, 180, 0)
+        self.original_color = (0, 180, 0)
 
-        # Create a bunker rect at (0, 0) and then set correct position
         self.rect = pygame.Rect(0, 0, 80, 60)
         self.rect.x = x_pos
         self.rect.bottom = ai_game.ship.rect.top - 20
 
-        # Bunker health
         self.health = 4
+        self.max_health = 4
 
     def draw(self):
-        """Draw the bunker to the screen."""
         if self.health > 0:
-            pygame.draw.rect(self.screen, self.color, self.rect)
+            damage = 1 - (self.health / self.max_health)
+
+            damaged_color = (
+                max(0, self.original_color[0] - int(100 * damage)),
+                max(0, self.original_color[1] - int(100 * damage)),
+                max(0, self.original_color[2] - int(50 * damage))
+            )
+
+            pygame.draw.rect(self.screen, damaged_color, self.rect)
+
+            self._draw_damage_cracks()
+
+    def _draw_damage_cracks(self):
+        if self.health < self.max_health:
+            crack_color = (40, 40, 40)  # Темно-серый
+
+            pygame.draw.line(self.screen, crack_color,
+                             (self.rect.left + 5, self.rect.centery),
+                             (self.rect.right - 5, self.rect.centery), 2)
+
+            if self.health <= 2:
+                pygame.draw.line(self.screen, crack_color,
+                                 (self.rect.centerx, self.rect.top + 5),
+                                 (self.rect.centerx, self.rect.bottom - 5), 2)
+
+            if self.health == 1:
+                pygame.draw.line(self.screen, crack_color,
+                                 (self.rect.left + 5, self.rect.top + 5),
+                                 (self.rect.right - 5, self.rect.bottom - 5), 2)
+                pygame.draw.line(self.screen, crack_color,
+                                 (self.rect.left + 5, self.rect.bottom - 5),
+                                 (self.rect.right - 5, self.rect.top + 5), 2)

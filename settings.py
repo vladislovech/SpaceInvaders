@@ -21,17 +21,17 @@ class Settings:
         self.fleet_drop_speed = 10
 
         # How quickly the game speeds up
-        self.speedup_scale = 2.
+        self.speedup_scale = 10
         # How quickly the alien point values increase
-        self.score_scale = 1.5
+        self.score_scale = 15
 
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
         """Initialize settings that change throughout the game."""
-        self.ship_speed = 1
+        self.ship_speed = 0.6
         self.bullet_speed = 1.0
-        self.alien_speed = 0.8
+        self.alien_speed = 0.3
         self.mystery_ship_speed = 2
 
         # fleet_direction of 1 represents right; -1 represents left.
