@@ -1,4 +1,8 @@
 class Settings:
+    """
+    настройки игры
+    """
+
     def __init__(self) -> None:
         self.screen_width = 1200
         self.screen_height = 800
@@ -13,12 +17,15 @@ class Settings:
 
         self.fleet_drop_speed = 10
 
-        self.speedup_scale = 10
-        self.score_scale = 15
+        self.speedup_scale = 15
+        self.score_scale = 2
 
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self) -> None:
+        """
+        настройки, меняющиеся по ходу игры
+        """
         self.ship_speed = 0.6
         self.bullet_speed = 1.0
         self.alien_speed = 0.3
@@ -29,6 +36,9 @@ class Settings:
         self.alien_points = 50
 
     def increase_speed(self) -> None:
+        """
+        настройки, изменяющиеся с переходом на новые уровни
+        """
         self.ship_speed *= self.speedup_scale
         self.bullet_speed *= self.speedup_scale
         self.alien_speed *= self.speedup_scale

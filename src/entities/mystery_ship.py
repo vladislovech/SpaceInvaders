@@ -1,19 +1,27 @@
+from __future__ import annotations
+
 import random
+from typing import TYPE_CHECKING
 
 import pygame
 from pygame.sprite import Sprite
 
-from alien_invasion import AlienInvasion
+if TYPE_CHECKING:
+    from src.game.alien_invasion import AlienInvasion
 
 
 class MysteryShip(Sprite):
+    """
+    класс, отвечающий за мистический корабль
+    """
+
     def __init__(self, ai_game: AlienInvasion) -> None:
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         self.screen_rect = ai_game.screen.get_rect()
 
-        original_image = pygame.image.load('images/ships/mystery_ship.png')
+        original_image = pygame.image.load('../../images/ships/mystery_ship.png')
         self.image = pygame.transform.scale(original_image, (60, 40))
         self.rect = self.image.get_rect()
 
@@ -32,6 +40,9 @@ class MysteryShip(Sprite):
         self.delay = random.randint(10000, 30000)  # 10-30 seconds
 
     def update(self) -> None:
+        """
+        активирует мистический корабль
+        """
         if not self.active:
             current_time = pygame.time.get_ticks()
             if current_time - self.appear_time > self.delay:
@@ -54,11 +65,17 @@ class MysteryShip(Sprite):
             self.reset()
 
     def reset(self) -> None:
+        """
+        деактивизирует мистический корабль
+        """
         self.active = False
         self.appear_time = pygame.time.get_ticks()
         self.delay = random.randint(10000, 30000)
         self.points = random.randint(1, 10) * 100
 
     def draw(self) -> None:
+        """
+        отрисовывает мистический корабль
+        """
         if self.active:
             self.screen.blit(self.image, self.rect)

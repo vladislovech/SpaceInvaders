@@ -1,10 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pygame
 from pygame.sprite import Sprite
 
-from alien_invasion import AlienInvasion
+if TYPE_CHECKING:
+    from src.game.alien_invasion import AlienInvasion
 
 
 class Bunker(Sprite):
+    """
+    класс, отвечающий за бункеры
+    """
+
     def __init__(self, ai_game: AlienInvasion, x_pos: int) -> None:
         super().__init__()
         self.screen = ai_game.screen
@@ -19,6 +28,9 @@ class Bunker(Sprite):
         self.max_health = 4
 
     def draw(self) -> None:
+        """
+        отрисовка бункера
+        """
         if self.health > 0:
             damage = 1 - (self.health / self.max_health)
 
@@ -33,8 +45,11 @@ class Bunker(Sprite):
             self._draw_damage_cracks()
 
     def _draw_damage_cracks(self) -> None:
+        """
+        отрисовка разрушения бункера
+        """
         if self.health < self.max_health:
-            crack_color = (40, 40, 40)  # Темно-серый
+            crack_color = (40, 40, 40)
 
             pygame.draw.line(
                 self.screen,

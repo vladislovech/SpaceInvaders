@@ -2,21 +2,25 @@ import sys
 from time import sleep
 
 import pygame
+from game_stats import GameStats
 from pygame.event import Event
 
-from alien import Alien
-from bullet import Bullet
-from bunker import Bunker
-from button import Button
-from game_stats import GameStats
-from high_scores import HighScores
-from mystery_ship import MysteryShip
-from scoreboard import Scoreboard
-from settings import Settings
-from ship import Ship
+from src.entities.alien import Alien
+from src.entities.bullet import Bullet
+from src.entities.bunker import Bunker
+from src.entities.mystery_ship import MysteryShip
+from src.entities.ship import Ship
+from src.game.settings import Settings
+from src.ui.button import Button
+from src.ui.high_scores import HighScores
+from src.ui.scoreboard import Scoreboard
 
 
 class AlienInvasion:
+    """
+    основной класс проекта spaceInvaders, объединяющий всю логику игры
+    """
+
     def __init__(self) -> None:
         pygame.init()
         self.settings = Settings()
@@ -36,7 +40,6 @@ class AlienInvasion:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.bunkers = pygame.sprite.Group()
-        self._create_bunkers()
         self.mystery_ship = MysteryShip(self)
 
         self._create_fleet()
@@ -49,6 +52,9 @@ class AlienInvasion:
         self.input_font = pygame.font.SysFont(None, 48)
 
     def run_game(self) -> None:
+        """
+        вызывает методы отрисовки элементов игры
+        """
         while True:
             self._check_events()
 
@@ -56,10 +62,14 @@ class AlienInvasion:
                 self.ship.update()
                 self._update_bullets()
                 self._update_aliens()
+                self.mystery_ship.update()
 
             self._update_screen()
 
     def _check_events(self) -> None:
+        """
+        отслеживает действия игрока
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -82,12 +92,18 @@ class AlienInvasion:
                 self._check_play_button(mouse_pos)
 
     def _check_play_button(self, mouse_pos: tuple[int, int]) -> None:
+        """
+        проверяет, нажата ли кнопка PLAY
+        """
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active and not self.name_input_active:
             self.name_input_active = True
             self.name_input_text = ""
 
     def _start_game(self) -> None:
+        """
+        запускает игровой процесс
+        """
         self.settings.initialize_dynamic_settings()
         self.stats.reset_stats()
         self.stats.game_active = True
@@ -99,11 +115,15 @@ class AlienInvasion:
         self.bullets.empty()
 
         self._create_fleet()
+        self._create_bunkers()
         self.ship.center_ship()
 
         pygame.mouse.set_visible(False)
 
     def _check_keydown_events(self, event: Event) -> None:
+        """
+        обрабатывает нажатие клавиш
+        """
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
@@ -114,19 +134,38 @@ class AlienInvasion:
             self._fire_bullet()
 
     def _check_keyup_events(self, event: Event) -> None:
+        """
+        обрабатывает отпускание клавиш
+        """
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
 
     def _fire_bullet(self) -> None:
+        """
+        следит за кол-вом пуль на экране, и создает новую пулю если это возможно
+        """
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
 
     def _update_bullets(self) -> None:
+        """
+        обновляет состояние пули
+        """
         self.bullets.update()
 
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
+        self._check_bullet_collisions()
+
+    def _check_bullet_collisions(self) -> None:
+        """
+        обрабатывает столкновение пули
+        """
         bunker_hits = pygame.sprite.groupcollide(self.bullets, self.bunkers, True, False)
 
         for bunker in bunker_hits.values():
@@ -135,17 +174,9 @@ class AlienInvasion:
                 if b.health <= 0:
                     self.bunkers.remove(b)
 
-        for bullet in self.bullets.copy():
-            if bullet.rect.bottom <= 0:
-                self.bullets.remove(bullet)
-
-        self._check_bullet_alien_collisions()
-
-    def _check_bullet_alien_collisions(self) -> None:
         if self.mystery_ship.active and pygame.sprite.spritecollideany(self.mystery_ship, self.bullets):
             self.stats.score += self.mystery_ship.points
             self.sb.prep_score()
-            self.sb.check_high_score()
             self.mystery_ship.reset()
             for bullet in self.bullets:
                 if pygame.sprite.collide_rect(bullet, self.mystery_ship):
@@ -156,7 +187,6 @@ class AlienInvasion:
             for aliens in collisions.values():
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.sb.prep_score()
-            self.sb.check_high_score()
 
         if not self.aliens:
             self.bullets.empty()
@@ -167,9 +197,11 @@ class AlienInvasion:
             self.sb.prep_level()
 
     def _update_aliens(self) -> None:
+        """
+        обновляет состояние пришельца
+        """
         self._check_fleet_edges()
         self.aliens.update()
-        self.mystery_ship.update()
 
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
             self._ship_hit()
@@ -179,6 +211,9 @@ class AlienInvasion:
         self._check_aliens_bottom()
 
     def _check_aliens_bottom(self) -> None:
+        """
+        прерывание игры в случае, если пришелец достиг низа поля
+        """
         screen_rect = self.screen.get_rect()
         for alien in self.aliens.sprites():
             if alien.rect.bottom >= screen_rect.bottom:
@@ -186,6 +221,9 @@ class AlienInvasion:
                 break
 
     def _draw_name_input(self) -> None:
+        """
+        отрисовывает поле ввода имени
+        """
         prompt_text = "Enter your name:"
         prompt_surface = self.input_font.render(prompt_text, True, (255, 255, 255))
         prompt_rect = prompt_surface.get_rect(center=(self.screen_rect.centerx, self.screen_rect.centery - 50))
@@ -197,6 +235,9 @@ class AlienInvasion:
         self.screen.blit(input_surface, input_rect)
 
     def _ship_hit(self) -> None:
+        """
+        Обрабатывает столкновение корабля
+        """
         self.stats.ships_left -= 1
         self.sb.prep_ships()
 
@@ -216,6 +257,9 @@ class AlienInvasion:
         sleep(0.5)
 
     def _create_fleet(self) -> None:
+        """
+        создание флота пришельцев
+        """
         alien = Alien(self)
         alien_width, alien_height = alien.rect.size
         available_space_x = self.settings.screen_width - (2 * alien_width)
@@ -231,6 +275,9 @@ class AlienInvasion:
                 self._create_alien(alien_number, row_number, alien_type)
 
     def _create_alien(self, alien_number: int, row_number: int, alien_type: int) -> None:
+        """
+        создание пришельца
+        """
         alien = Alien(self, alien_type)
         alien_width, alien_height = alien.rect.size
         alien.x = alien_width + 2 * alien_width * alien_number
@@ -239,17 +286,26 @@ class AlienInvasion:
         self.aliens.add(alien)
 
     def _check_fleet_edges(self) -> None:
+        """
+        проверяет, нужно ли сменить направление движения флота пришелельцев
+        """
         for alien in self.aliens.sprites():
             if alien.check_edges():
                 self._change_fleet_direction()
                 break
 
     def _change_fleet_direction(self) -> None:
+        """
+        сменяет направление движения флота пришельцев с постепенным приближением к игроку
+        """
         for alien in self.aliens.sprites():
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
 
     def _update_screen(self) -> None:
+        """
+        отображает всю графику игры
+        """
         self.screen.fill(self.settings.bg_color)
 
         if self.name_input_active:
@@ -270,6 +326,9 @@ class AlienInvasion:
         pygame.display.flip()
 
     def _create_bunkers(self) -> None:
+        """
+        создание бункеров
+        """
         for i in range(4):
             bunker = Bunker(self, (i + 1) * self.settings.screen_width // 5)
             self.bunkers.add(bunker)

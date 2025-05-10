@@ -1,9 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pygame.font
 
-from alien_invasion import AlienInvasion
+if TYPE_CHECKING:
+    from src.game.alien_invasion import AlienInvasion
 
 
 class Button:
+    """
+    класс, отвечающий за создание кнопок
+    """
+
     def __init__(self, ai_game: AlienInvasion, msg: str) -> None:
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
@@ -19,10 +28,16 @@ class Button:
         self._prep_msg(msg)
 
     def _prep_msg(self, msg: str) -> None:
+        """
+        размещает текст кнопки
+        """
         self.msg_image = self.font.render(msg, True, self.text_color, self.button_color)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
 
     def draw_button(self) -> None:
+        """
+        отрисовывает кнопку
+        """
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
