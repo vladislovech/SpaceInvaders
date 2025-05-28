@@ -7,6 +7,8 @@ import pygame
 from pygame import Rect
 from pygame.sprite import Sprite
 
+from src.game.level_editor import LevelEditor
+
 if TYPE_CHECKING:
     from src.game.alien_invasion import AlienInvasion
 
@@ -16,7 +18,7 @@ class Alien(Sprite):
     класс, отвечающий за прищельцев
     """
 
-    def __init__(self, ai_game: AlienInvasion, alien_type: int | None = None) -> None:
+    def __init__(self, ai_game: AlienInvasion | LevelEditor, alien_type: int | None = None) -> None:
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
